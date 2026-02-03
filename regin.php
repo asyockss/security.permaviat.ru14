@@ -43,6 +43,18 @@
 					<input name="_password" type="password" placeholder="" onkeypress="return PressToEnter(event)"/>
 					<div class = "sub-name">Повторите пароль:</div>
 					<input name="_passwordCopy" type="password" placeholder="" onkeypress="return PressToEnter(event)"/>
+
+					<div class = "sub-name">Контрольный вопрос:</div>
+					<select name="_security_question" style="width: 100%; padding: 8px; margin-bottom: 10px;">
+						<option value="Какой ваш любимый цвет?">Какой ваш любимый цвет?</option>
+						<option value="Как звали вашего первого питомца?">Как звали вашего первого питомца?</option>
+						<option value="В каком городе вы родились?">В каком городе вы родились?</option>
+						<option value="Девичья фамилия матери?">Девичья фамилия матери?</option>
+						<option value="Ваше любимое блюдо?">Ваше любимое блюдо?</option>
+					</select>
+
+					<div class = "sub-name">Ответ на контрольный вопрос:</div>
+					<input name="_security_answer" type="text" placeholder="" onkeypress="return PressToEnter(event)"/>
 					
 					<a href="login.php">Вернуться</a>
 					<input type="button" class="button" value="Зайти" onclick="RegIn()" style="margin-top: 0px;"/>
@@ -65,53 +77,55 @@
 				var _login = document.getElementsByName("_login")[0].value;
 				var _password = document.getElementsByName("_password")[0].value;
 				var _passwordCopy = document.getElementsByName("_passwordCopy")[0].value;
+				var _security_question = document.getElementsByName("_security_question")[0].value;
+				var _security_answer = document.getElementsByName("_security_answer")[0].value;
 				
 				if(_login != "") {
 					if(_password != "") {
 						if(_password == _passwordCopy) {
-							loading.style.display = "block";
-							button.className = "button_diactive";
-							
-							var data = new FormData();
-							data.append("login", _login);
-							data.append("password", _password);
-							
-							// AJAX запрос
-							$.ajax({
-								url         : 'ajax/regin_user.php',
-								type        : 'POST', // важно!
-								data        : data,
-								cache       : false,
-								dataType    : 'html',
-								// отключаем обработку передаваемых данных, пусть передаются как есть
-								processData : false,
-								// отключаем установку заголовка типа запроса. Так jQuery скажет серверу что это строковой запрос
-								contentType : false, 
-								// функция успешного ответа сервера
-								success: function (_data) {
-									console.log("Авторизация прошла успешно, id: " +_data);
-									if(_data == -1) {
-										alert("Пользователь с таким логином существует.");
-										loading.style.display = "none";
-										button.className = "button";
-									} else {
-										location.reload();
+							if(_security_answer != "") {
+								loading.style.display = "block";
+								button.className = "button_diactive";
+								
+								var data = new FormData();
+								data.append("login", _login);
+								data.append("password", _password);
+								data.append("security_question", _security_question);
+								data.append("security_answer", _security_answer);
+								
+								// AJAX запрос
+								$.ajax({
+									url         : 'ajax/regin_user.php',
+									type        : 'POST',
+									data        : data,
+									cache       : false,
+									dataType    : 'html',
+									processData : false,
+									contentType : false, 
+									success: function (_data) {
+										console.log("Регистрация прошла успешно, id: " +_data);
+										if(_data == -1) {
+											alert("Пользователь с таким логином существует.");
+											loading.style.display = "none";
+											button.className = "button";
+										} else {
+											location.reload();
+											loading.style.display = "none";
+											button.className = "button";
+										}
+									},
+									error: function( ){
+										console.log('Системная ошибка!');
 										loading.style.display = "none";
 										button.className = "button";
 									}
-								},
-								// функция ошибки
-								error: function( ){
-									console.log('Системная ошибка!');
-									loading.style.display = "none";
-									button.className = "button";
-								}
-							});
-						} else alert("Пароли не совподают.");
+								});
+							} else alert("Введите ответ на контрольный вопрос.");
+						} else alert("Пароли не совпадают.");
 					} else alert("Введите пароль.");
 				} else alert("Введите логин.");
 			}
-			
+						
 			function PressToEnter(e) {
 				if (e.keyCode == 13) {
 					var _login = document.getElementsByName("_login")[0].value;
